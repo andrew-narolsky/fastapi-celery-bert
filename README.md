@@ -1,10 +1,6 @@
-# Asynchronous Tasks with FastAPI and Celery
+# BERT Score getter with FastAPI and Celery
 
 Example of how to handle background processes with FastAPI, Celery, and Docker.
-
-## Want to learn how to build this?
-
-Check out the [post](https://testdriven.io/blog/fastapi-and-celery/).
 
 ## Want to use this project?
 
@@ -14,7 +10,7 @@ Spin up the containers:
 $ docker-compose up -d --build
 ```
 
-Open your browser to [http://localhost:8004](http://localhost:8004) to view the app or to [http://localhost:5556](http://localhost:5556) to view the Flower dashboard.
+Open your browser to [http://localhost:8004](http://localhost:8004) to view the app.
 
 Trigger a new task:
 
