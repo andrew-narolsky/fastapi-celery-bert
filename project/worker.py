@@ -13,6 +13,9 @@ from bs4 import BeautifulSoup  # to decode html
 from bs4.element import Comment
 
 n_best_size = 20
+# Choose your model
+# 'bert-large-uncased-whole-word-masking-finetuned-squad'
+# 'bert-large-cased-whole-word-masking-finetuned-squad'
 model = QA('bert-large-uncased-whole-word-masking-finetuned-squad', n_best_size)
 
 
@@ -34,12 +37,13 @@ def get_result(myKeyword):
     myNum = 10
     myStart = 0
     myStop = 10  # get by ten
-    myMaxStart = 10  # only 30 pages
+    myMaxStart = 30  # only 30 pages
     myLowPause = 5
     myHighPause = 15
     myTLD = "com"  # Google tld   -> we search in google.com
     myHl = "en"  # in english
     i = 1
+    PAGES_LIMIT=10
 
     extensions_stop_list = (
         '.7z', '.aac', '.au', '.avi', '.bmp', '.bzip', '.css', '.doc',
@@ -76,8 +80,10 @@ def get_result(myKeyword):
             )
 
             for url in urls:
-                if i > 3:
-                    break
+
+                if i > PAGES_LIMIT:
+                    return pages
+
                 url = re.sub(r'(?is)\?(.)+', '', url)
                 print(url)
                 ext = re.search(r'\.(.){2,3}$', url)
@@ -126,11 +132,17 @@ def get_bert_score(url, myKeyword):
             myBody = " ".join(t.strip() for t in visible_texts)
             myBody = myBody.strip()
             myBody = " ".join(myBody.split(" "))  # remove multiple spaces
-            print(myBody)
+            # print(myBody)
+            # mean_total_prob = myKeyword
             answer = model.predict(myBody, myKeyword)
-            mean_total_prob = answer['mean_total_prob']
-            print("BERT_score" + str(answer['mean_total_prob']))
-            print(answer)
+            # mean_total_prob = str([answer['mean_total_prob'], answer['answers']])
+            mean_total_prob = {
+                'score': answer['mean_total_prob'],
+                'answers': answer['answers']
+            }
+            print(answer['mean_total_prob'])
+            print(answer['answers'])
+            print(mean_total_prob)
     except requests.exceptions.ConnectionError:
         mean_total_prob = "Connection refused"
         print("Connection refused")

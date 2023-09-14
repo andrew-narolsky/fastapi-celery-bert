@@ -16,11 +16,9 @@ class QA:
 
     def __init__(self, model_path: str, n_best_size=20):
         self.max_seq_length = 384  # original 384
-        self.doc_stride = 64
-        # self.doc_stride = 128
+        self.doc_stride = 128
         self.do_lower_case = True
         self.max_query_length = 64  # orig 64
-        # self.max_query_length = 32  # orig 64
         self.n_best_size = n_best_size  # orig 20  #PR we  set this as an input parameter in QA
         self.max_answer_length = 30
         self.model, self.tokenizer = self.load_model(model_path)
