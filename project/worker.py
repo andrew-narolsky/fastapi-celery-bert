@@ -84,9 +84,10 @@ def get_result(myKeyword):
                 if i > PAGES_LIMIT:
                     return pages
 
-                url = re.sub(r'(?is)\?(.)+', '', url)
+                test_url = re.sub(r'(?is)\?(.)+', '', url)
                 print(url)
-                ext = re.search(r'\.(.){2,3}$', url)
+                print(test_url)
+                ext = re.search(r'\.(.){2,3}$', test_url)
                 if ext and ext.group(0) in extensions_stop_list:
                     continue
                 task = create_task.apply_async([url, myKeyword])

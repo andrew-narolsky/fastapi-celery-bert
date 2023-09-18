@@ -1,6 +1,6 @@
 (function () {
 
-    const API_URL = 'http://localhost:8004/tasks'
+    const API_URL = '/tasks'
     window.result_data = {}
 
     document.querySelector('#download').addEventListener('click', saveDocument)
@@ -37,47 +37,6 @@
             redirect: 'follow'
         }
 
-        // TODO;
-        // let data = {
-        //     "1": {
-        //         "url": "https://en.wikipedia.org/wiki/List_of_Austrian_football_champions",
-        //         "task_id": "b92ec3be-d403-4474-9b48-fa41b851be74"
-        //     },
-        //     "2": {
-        //         "url": "https://en.wikipedia.org/wiki/History_of_the_European_Cup_and_UEFA_Champions_League",
-        //         "task_id": "c7c26778-75ab-472c-baae-3cc09926771b"
-        //     },
-        //     "3": {
-        //         "url": "https://www.uefa.com/uefachampionsleague/history/clubs/50024--wiener-sc/",
-        //         "task_id": "33ac7860-e9b8-4f00-97de-e0dd36778a8c"
-        //     }
-        // }
-
-        // window.result_data = data
-        //
-        // for (const i in data) {
-        //     const html = `
-        //           <tr class="class-${data[i]['task_id']}">
-        //             <td>${data[i]['task_id']}</td>
-        //             <td>${data[i]['url']}</td>
-        //             <td class="status">Pending...</td>
-        //           </tr>`
-        //     const newRow = document.getElementById('tasks')
-        //     newRow.insertAdjacentHTML('beforeend', html)
-        //     const progress = Math.round((i * 100) / Object.keys(data).length)
-        //
-        //     setTimeout(() => {
-        //         getStatus(data[i]['task_id'], progress, i)
-        //     }, 2000 * i)
-        // }
-        //
-        // setTimeout(() => {
-        //     form_wrap.style.display = 'none'
-        //     result_wrap.style.display = 'block'
-        // }, 1000)
-
-        // TODO;
-
         fetch(API_URL, requestOptions)
             .then(response => response.text())
             .then(result => {
@@ -109,7 +68,7 @@
                 }
 
                 setTimeout(() => {
-                    form_wrap.style.display = 'none'
+                    // form_wrap.style.display = 'none'
                     result_wrap.style.display = 'block'
                 }, 500)
 
