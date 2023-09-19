@@ -1,36 +1,46 @@
-(function () {
+class ContentParser {
 
-    const API_URL = '/tasks'
-    window.result_data = {}
-    window.query = ''
+    API_URL = '/tasks'
+    fileLoader = document.querySelector('.file-loader')
+    fileLoaderWrap = document.querySelector('.file-loader-wrap')
+    uploadButton = document.querySelector('#upload')
 
-    document.querySelector('#download').addEventListener('click', saveDocument)
+    fileGenerator = document.querySelector('.file-generator')
+    sendForm = document.querySelector('#start_generator')
+    sendButton = document.querySelector('#start_generator button')
 
-    document.querySelector('#form').addEventListener('submit', (e) => {
-        e.preventDefault()
-        let textarea = e.target.querySelector('textarea')
+    InitEvents() {
+        this.uploadButton.addEventListener('change', this.UploadFile.bind(this))
+        this.sendForm.addEventListener('submit', this.Start.bind(this))
+    }
 
-        if (textarea.classList.contains('is-invalid')) textarea.classList.remove('is-invalid')
+    constructor() {
+        this.InitEvents()
+    }
 
-        let button = e.target.querySelector('button')
-        let query = textarea.value
-        let result_wrap = document.querySelector('#result_wrap')
-        let form_wrap = document.querySelector('#form_wrap')
+    ValidateEmail(email) {
+        let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    }
 
-        window.query = query
 
-        if (!query) {
-            textarea.classList.add('is-invalid')
+    Start(event) {
+        event.preventDefault()
+        let input = event.target.querySelector('input')
+        input.classList.remove('is-invalid')
+
+        let email = input.value
+        if (!email || !this.ValidateEmail(email)) {
+            input.classList.add('is-invalid')
             return false
         }
-
-        button.disabled = true
 
         let myHeaders = new Headers()
         myHeaders.append('Content-Type', 'application/json')
 
         let raw = JSON.stringify({
-            'query': query
+            'query': window.loadded_data,
+            'email': email
         })
 
         let requestOptions = {
@@ -40,116 +50,61 @@
             redirect: 'follow'
         }
 
-        fetch(API_URL, requestOptions)
+        this.sendButton.disabled = true
+
+        fetch(this.API_URL, requestOptions)
             .then(response => response.text())
             .then(result => {
                 let data = JSON.parse(result)
-
-                console.log(data)
-
-                if (!data) {
-                    alert('Error! Try later')
-                    return false
-                }
-
-                window.result_data = data
-
-                for (const i in data) {
-                    const html = `
-                          <tr class="class-${data[i]['task_id']}">
-                            <td>${data[i]['task_id']}</td>
-                            <td>${data[i]['url']}</td>
-                            <td class="status">Pending...</td>
-                          </tr>`
-                    const newRow = document.getElementById('tasks')
-                    newRow.insertAdjacentHTML('beforeend', html)
-                    const progress = Math.round((i * 100) / Object.keys(data).length)
-
+                if (data.status === 200) {
                     setTimeout(() => {
-                        getStatus(data[i]['task_id'], progress, i)
-                    }, 2000 * i)
+                        Swal.fire(
+                          'Task started!',
+                          'After completing you will receive an email with the results',
+                          'success'
+                        )
+                        this.fileGenerator.classList.add('hidden')
+                    }, 1000)
                 }
-
-                setTimeout(() => {
-                    form_wrap.style.display = 'none'
-                    result_wrap.style.display = 'block'
-                }, 500)
             })
             .catch(error => console.log('error', error))
-    })
-
-    function getStatus(taskID, progress, num) {
-        fetch(`/tasks/${taskID}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        })
-            .then(response => response.json())
-            .then(res => {
-                const taskStatus = res.task_status
-                if (taskStatus === 'SUCCESS' || taskStatus === 'FAILURE') {
-                    document.querySelector('.class-' + taskID + ' .status').innerText = 'Success'
-                    document.querySelector('.progress-bar').style.width = progress + '%'
-                    if (parseInt(progress) === 100) {
-                        document.querySelector('#download').disabled = false
-                    }
-                    window.result_data[num]['position'] = parseInt(num)
-                    window.result_data[num]['score'] = res.task_result.score
-                    window.result_data[num]['answers'] = res.task_result.answers.toString()
-                    return false
-                }
-                setTimeout(function () {
-                    getStatus(res.task_id, progress, num)
-                }, 1000)
-            })
-            .catch(err => console.log(err))
     }
 
-    async function saveDocument() {
+    UploadFile(event) {
+
+        event.target.setAttribute('disabled', 'disabled')
+        this.fileLoaderWrap.classList.add('disabled')
+
+        let result = []
+        const file = event.target.files[0]
         const workbook = new ExcelJS.Workbook()
-        const sheet = workbook.addWorksheet('Sheet1')
 
-        sheet.columns = [
-            {header: 'Position', key: 'position', width: 10},
-            {header: 'Url', key: 'url', width: 70},
-            {header: 'Bert Score', key: 'score', width: 15},
-            {header: 'Answers', key: 'answers', width: 100}
-        ]
-
-        sheet.getRow(1).font = {bold: true}
-
-        sheet.addRow({
-            position: 'QUERY',
-            url: window.query,
-        })
-
-        sheet.getRow(2).fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: {argb: 'FFFFFF00'},
-            bgColor: {argb: 'FFFFFF00'}
-        }
-
-        Object.keys(window.result_data).map(value => {
-            sheet.addRow({
-                position: window.result_data[value]['position'],
-                url: window.result_data[value]['url'],
-                score: window.result_data[value]['score'],
-                answers: window.result_data[value]['answers'],
+        workbook.xlsx.load(file).then(() => {
+            let worksheet = workbook.getWorksheet('Sheet1')
+            worksheet.eachRow({ includeEmpty: true }, function(row, rowNumber) {
+                if (rowNumber > 1) {
+                    console.log(row)
+                    result[rowNumber] = {
+                        'url': row.values[1].text ?? row.values[1],
+                        'query': row.values[2].text ?? row.values[2],
+                    }
+                }
             })
-        })
 
-        await workbook.xlsx.writeBuffer().then(function (data) {
-            const blob = new Blob(
-                [data],
-                {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
-            )
-            const link = document.createElement('a')
-            link.href = URL.createObjectURL(blob)
-            link.download = 'result.xlsx'
-            link.click()
-            link.remove()
+            window.loadded_data = result.filter(function (el) {
+              return el != null;
+            })
+
+            setTimeout(() => {
+                Swal.fire('File loaded!')
+                this.fileLoader.classList.add('hidden')
+                this.fileGenerator.classList.remove('hidden')
+            }, 1000)
         })
     }
+}
+
+(function () {
+    window.loadded_data = {}
+    new ContentParser()
 })()

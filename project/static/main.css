@@ -1,17 +1,105 @@
 /* custom css */
+.hidden {
+    display: none !important;
+}
 
-html {
-  position: relative;
-  min-height: 100%;
+.progress-bar {
+    width: 0;
+    transition: 1s;
 }
-body {
-  padding-top: 2rem;
-  margin-bottom: 60px;
+
+.form-group {
+    width: 100%;
 }
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 50px;
-  line-height: 50px;
+
+.progress {
+    height: 3rem;
+    width: 100%;
+}
+
+.form-control {
+    height: 48px;
+    line-height: 40px;
+}
+
+.file-generator {
+    align-items: center;
+    display: flex;
+    height: 100vh;
+}
+
+.file-loader {
+    display: flex;
+    flex-wrap: wrap;
+    height: calc(100vh - 50px);
+    align-items: center;
+    align-content: center;
+}
+
+.table-wrap {
+    max-height: 500px;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: scroll;
+}
+
+.file-loader-wrap {
+    width: 100%;
+    padding: 100px 50px;
+    border-radius: 7px;
+    border: 3px dashed #eee;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.file-loader-wrap.disabled, .file-loader-wrap.disabled:hover {
+    opacity: .5;
+    border: 3px dashed #eee;
+    cursor: inherit;
+}
+
+.file-loader-wrap .btn {
+    background-color: #e9ecef;
+    border: none;
+}
+
+.file-loader-wrap:hover .btn {
+    background-color: #454cad;
+}
+
+.file-loader-wrap.disabled:hover .btn {
+    background-color: #e9ecef;
+}
+
+.file-loader-wrap:hover svg path {
+    fill: black;
+}
+
+.file-loader-wrap.disabled:hover svg path {
+    fill: #e9ecef;
+}
+
+.file-loader-wrap:hover {
+    border-color: #454cad;
+    cursor: pointer;
+}
+
+.file-loader-wrap svg path {
+    fill: #e9ecef;
+}
+
+.file-loader-wrap svg {
+    width: 100px;
+    height: 100px;
+}
+
+.file-loader-wrap button {
+    z-index: -1;
+}
+
+#upload {
+    display: none;
 }
