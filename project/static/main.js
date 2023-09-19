@@ -2,6 +2,7 @@
 
     const API_URL = '/tasks'
     window.result_data = {}
+    window.query = ''
 
     document.querySelector('#download').addEventListener('click', saveDocument)
 
@@ -16,6 +17,8 @@
         let result_wrap = document.querySelector('#result_wrap')
         let form_wrap = document.querySelector('#form_wrap')
 
+        window.query = query
+
         if (!query) {
             textarea.classList.add('is-invalid')
             return false
@@ -23,8 +26,8 @@
 
         button.disabled = true
 
-        let myHeaders = new Headers();
-        myHeaders.append('Content-Type', 'application/json');
+        let myHeaders = new Headers()
+        myHeaders.append('Content-Type', 'application/json')
 
         let raw = JSON.stringify({
             'query': query
@@ -68,22 +71,9 @@
                 }
 
                 setTimeout(() => {
-                    // form_wrap.style.display = 'none'
+                    form_wrap.style.display = 'none'
                     result_wrap.style.display = 'block'
                 }, 500)
-
-                // console.log(data)
-                // for (const i in data) {
-                //     const html = `
-                //           <tr class="class-${data[i]['task_id']}">
-                //             <td>${data[i]['task_id']}</td>
-                //             <td>${data[i]['url']}</td>
-                //             <td>Pending...</td>
-                //           </tr>`
-                //     const newRow = document.getElementById('tasks').insertRow(0)
-                //     newRow.innerHTML = html
-                // }
-                // button.disabled = false
             })
             .catch(error => console.log('error', error))
     })
@@ -117,8 +107,8 @@
     }
 
     async function saveDocument() {
-        const workbook = new ExcelJS.Workbook();
-        const sheet = workbook.addWorksheet('Sheet1');
+        const workbook = new ExcelJS.Workbook()
+        const sheet = workbook.addWorksheet('Sheet1')
 
         sheet.columns = [
             {header: 'Position', key: 'position', width: 10},
@@ -128,6 +118,18 @@
         ]
 
         sheet.getRow(1).font = {bold: true}
+
+        sheet.addRow({
+            position: 'QUERY',
+            url: window.query,
+        })
+
+        sheet.getRow(2).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: {argb: 'FFFFFF00'},
+            bgColor: {argb: 'FFFFFF00'}
+        }
 
         Object.keys(window.result_data).map(value => {
             sheet.addRow({

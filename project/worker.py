@@ -43,7 +43,7 @@ def get_result(myKeyword):
     myTLD = "com"  # Google tld   -> we search in google.com
     myHl = "en"  # in english
     i = 1
-    PAGES_LIMIT=10
+#     PAGES_LIMIT=30
 
     extensions_stop_list = (
         '.7z', '.aac', '.au', '.avi', '.bmp', '.bzip', '.css', '.doc',
@@ -81,8 +81,8 @@ def get_result(myKeyword):
 
             for url in urls:
 
-                if i > PAGES_LIMIT:
-                    return pages
+#                 if i > PAGES_LIMIT:
+#                     return pages
 
                 test_url = re.sub(r'(?is)\?(.)+', '', url)
                 print(url)
