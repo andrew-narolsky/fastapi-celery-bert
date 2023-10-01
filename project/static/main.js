@@ -81,19 +81,9 @@ class ContentParser {
 
         workbook.xlsx.load(file).then(() => {
             let worksheet = workbook.worksheets[0]
-            // worksheet.eachRow({ includeEmpty: true }, function(row, rowNumber) {
-            //     if (rowNumber > 1) {
-            //         console.log(row)
-            //         result[rowNumber] = {
-            //             'url': row.values[1].text ?? row.values[1],
-            //             'query': row.values[2].text ?? row.values[2],
-            //         }
-            //     }
-            // })
 
             worksheet.eachRow({ includeEmpty: true }, function(row, rowNumber) {
                 if (rowNumber > 1) {
-                    console.log(row)
                     result[rowNumber] = {
                         'url': row._cells[0]._value.model.value,
                         'query': row._cells[1]._value.model.value,

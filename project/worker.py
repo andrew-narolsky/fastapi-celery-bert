@@ -1,4 +1,8 @@
 import os
+from dotenv import load_dotenv
+import subprocess
+load_dotenv()
+
 from bert import QA
 
 import smtplib, ssl
@@ -11,16 +15,15 @@ import pandas as pd
 
 from celery import Celery
 
-import googlesearch
-
 import requests  # to read urls contents
 from bs4 import BeautifulSoup  # to decode html
 from bs4.element import Comment
 
-SMTP_SERVER = 'mail.siteforyou.org'
-SMTP_PORT = 465
-SMTP_EMAIL = 'admin@siteforyou.org'
-SMTP_PASSWORD = 'rivne_23'
+SMTP_SERVER = os.getenv('SMTP_SERVER')
+SMTP_PORT = os.getenv('SMTP_PORT')
+SMTP_EMAIL = os.getenv('SMTP_EMAIL')
+SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
+CLEVERR_PROXY = os.getenv('CLEVERR_PROXY')
 
 n_best_size = 20
 # Choose your model
@@ -57,30 +60,25 @@ def get_bert_score(data, email):
     result = []
     i = 1
     for item in data:
-        # change user_agent  and provide local language in the User Agent
-        myUserAgent = googlesearch.get_random_user_agent()
-        print("UserAgent:" + str(myUserAgent))
-        headers = {'User-Agent': myUserAgent}
         try:
-            r = requests.get(item['url'], timeout=(5, 14), headers=headers)
-            if r.status_code == 200.:  # can't decode utf-7
-                soup = BeautifulSoup(r.text, 'html.parser')
-                texts = soup.findAll(text=True)
-                visible_texts = filter(tag_visible, texts)
-                myBody = " ".join(t.strip() for t in visible_texts)
-                myBody = myBody.strip()
-                myBody = " ".join(myBody.split(" "))  # remove multiple spaces
-                print(myBody)
-                answer = model.predict(myBody, item['query'])
-                print(answer['mean_total_prob'])
-                print(answer['answers'])
+            html = subprocess.check_output(['curl', '-x', CLEVERR_PROXY, item['url']])
+            soup = BeautifulSoup(html, 'html.parser')
+            texts = soup.findAll(text=True)
+            visible_texts = filter(tag_visible, texts)
+            myBody = " ".join(t.strip() for t in visible_texts)
+            myBody = myBody.strip()
+            myBody = " ".join(myBody.split(" "))  # remove multiple spaces
+            print(myBody)
+            answer = model.predict(myBody, item['query'])
+            print(answer['mean_total_prob'])
+            print(answer['answers'])
 
-                result.append({
-                    'url': item['url'],
-                    'query': item['query'],
-                    'bert score': answer['mean_total_prob'],
-                    'answers': answer['answers']
-                })
+            result.append({
+                'url': item['url'],
+                'query': item['query'],
+                'bert score': answer['mean_total_prob'],
+                'answers': answer['answers']
+            })
         except requests.exceptions.ConnectionError:
             print("Connection refused")
             result.append({

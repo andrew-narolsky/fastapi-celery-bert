@@ -1,3 +1,4 @@
 project/logs/celery.log
 .idea
 project/result.xlsx
+project/.env
